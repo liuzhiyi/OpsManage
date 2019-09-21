@@ -10,7 +10,7 @@ from ansible.errors import AnsibleError, AnsibleParserError
 class HostInventory(Host):
     def __init__(self, host_data):
         self.host_data = host_data
-        hostname = host_data.get('hostname') or host_data.get('ip')
+        hostname = host_data.get('hostname') or "{}:{}".format(host_data.get("ip"), host_data.get("port"))
         port = host_data.get('port') or 22
         super(HostInventory,self).__init__(hostname, port)
         self.__set_required_variables()

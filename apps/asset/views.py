@@ -51,8 +51,20 @@ class AssetsServer(LoginRequiredMixin,AssetsBase,View):
     def post(self, request, *args, **kwagrs):
         return JsonResponse({'msg':"主机查询成功","code":200,'data':self.allowcator(request.POST.get('query'), request.POST.get('id'),request)})  
          
-    
-    
+
+class AssestsUpdate(LoginRequiredMixin,AssetsSource,View):
+    def post(self, request, *args, **kwargs):
+        group = request.POST.get("group")
+        ids = request.POST.getlist("ids[]")
+        print(ids)
+        try:
+            Assets.objects.filter(id__in=ids).update(group=group)
+        except Exception as e:
+            print(e)
+            print("update failed", e)
+
+        return JsonResponse({'msg': "数据更新成功", "code": 200, 'data': None})
+
 class AssetsModf(LoginRequiredMixin,AssetsSource,View):
     login_url = '/login/'  
         
@@ -208,8 +220,8 @@ class AssetsBatch(LoginRequiredMixin,AssetsSource,View):
         fList,sList = self.allowcator(request.POST.get('model'),request)                     
         if sList:
             return JsonResponse({'msg':"数据更新成功","code":200,'data':{"success":sList,"failed":fList}}) 
-        else:return JsonResponse({'msg':fList,"code":500,'data':{"success":sList,"failed":fList}})     
-    
+        else:return JsonResponse({'msg':fList,"code":500,'data':{"success":sList,"failed":fList}})
+
     @method_decorator_adaptor(permission_required, "asset.assets_delete_assets","/403/")     
     def delete(self, request, *args, **kwagrs):
         for ast in QueryDict(request.body).getlist('assetsIds[]'):
@@ -244,13 +256,17 @@ class AssetsImport(LoginRequiredMixin,AssetsBase,View):
     
     @method_decorator_adaptor(permission_required, "asset.assets_add_assets","/403/")   
     def post(self, request, *args, **kwagrs):
-        f = request.FILES.get('import_file')
-        filename = os.path.join(os.getcwd() + '/upload/',f.name)
-        if os.path.isdir(os.path.dirname(filename)) is not True:os.makedirs(os.path.dirname(filename))
-        fobj = open(filename,'wb')
-        for chrunk in f.chunks():
-            fobj.write(chrunk)
-        fobj.close()
-        res = self.import_assets(filename)
-        if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
-        return HttpResponseRedirect('/user/center/')       
+        try:
+            f = request.FILES.get('import_file')
+            filename = os.path.join(os.getcwd() + '/upload/',f.name)
+            if os.path.isdir(os.path.dirname(filename)) is not True:os.makedirs(os.path.dirname(filename))
+            fobj = open(filename,'wb')
+            for chrunk in f.chunks():
+                fobj.write(chrunk)
+            fobj.close()
+            print(11)
+            res = self.import_csv(filename)
+            if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
+            return HttpResponseRedirect('/user/center/')
+        except Exception as e:
+            print(e)

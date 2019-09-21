@@ -271,7 +271,6 @@ class AnsiblePlaybook(WebsocketConsumer,AssetsAnsible):
         #执行ansible playbook
         if count > 0 and request["user"].has_perm('deploy.deploy_exec_deploy_playbook'):           
             self.logId = self.record_resullt(playbook.id, self.scope["user"].username, playbook.playbook_name, playbook.playbook_desc, sList)
-            
             ANS = ANSRunner(hosts=resource,websocket=self)                  
             ANS.run_playbook(host_list=sList, playbook_path=playbook_file,extra_vars=playbook_vars)
 

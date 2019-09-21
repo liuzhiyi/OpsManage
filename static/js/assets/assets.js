@@ -246,7 +246,44 @@
 	    oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
 	    table.fnDraw();
 	  });	
-	}	
+	}
+
+	function updateAssetsGroup(dataList, group){
+		var serverId = [];
+		for (var i=0; i <dataList.length; i++){
+			serverId.push(dataList[i]["id"])
+		}
+		$.ajax({
+			  type: 'POST',
+			  url: '/assets/update/',
+			  dataType:"json",
+			  data:{
+				  'ids':serverId,
+				  'group':group,
+			  },
+		      success:function(response){
+	    		msg = '修改成功';
+		    	if (response['code']==200){
+	            	new PNotify({
+	                    title: 'Success!',
+	                    text: msg,
+	                    type: 'success',
+	                    styling: 'bootstrap3',
+	                    delay: 18000
+	                });
+	            	RefreshAssetsTable("assetsListTable", "/api/assets/")
+		    	}
+		      },
+            error:function(response){
+	          	new PNotify({
+	                  title: 'Ops Failed!',
+	                  text: '资产修改失败',
+	                  type: 'error',
+	                  styling: 'bootstrap3'
+	              });
+            }
+		});
+	}
 	
 	function updateAssetsByAnsible(dataList){
 		var serverId = [];
@@ -395,10 +432,14 @@
 		    	            	   "data": "put_zone",
 		    	            	   "defaultContent": ''
 		    	               },
+		    	               {
+		    	            	   "data": "group",
+		    	            	   "defaultContent": ''
+		    	               }
 		    	               ]
 		       var columnDefs = [                      	    		     		    		    	    		    
 		    	    		        {
-		       	    				targets: [11],
+		       	    				targets: [12],
 		       	    				render: function(data, type, row, meta) {  	    					
 		       	                        return '<div class="btn-group  btn-group-sm">' +	
 					       	                     	'<button type="button" name="btn-assets-alter" value="'+ row.id +'" class="btn btn-default" aria-label="Center Align"><a href="/assets/manage/?id='+row.id+'&model=edit" target="view_window"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>' +
@@ -435,7 +476,18 @@
 		                text: '修改',
 		                className: "btn-sm",
 		                action: function (e, dt, button, config) {
-		                	//dt.rows().select();          	
+		                	let dataList = dt.rows('.selected').data();
+		                	var group = $("#batchModifyGroup").val();
+		                	var vips = ''
+		                	if (dataList.length==0){
+		                		$.alert({
+		                		    title: '操作失败',
+		                		    content: '批量更新资产失败，请先选择资产',
+		                		    type: 'red',
+		                		});
+		                	}else{
+		                		updateAssetsGroup(dataList, group)
+		                	}
 		                }
 		            },       
 		            {

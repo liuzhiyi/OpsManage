@@ -71,7 +71,7 @@ class Assets(models.Model):
         try:
             return Idc_Assets.objects.get(id=self.put_zone).idc_name
         except:
-            return '未知'        
+            return '未知'
 
     def get_buy_user(self):
         try:
@@ -112,7 +112,7 @@ class Assets(models.Model):
 
 class Server_Assets(models.Model): 
     assets = models.OneToOneField('Assets', on_delete=models.CASCADE) 
-    ip = models.CharField(max_length=100,unique=True,blank=True,null=True) 
+    ip = models.CharField(max_length=100,blank=True,null=True)
     hostname = models.CharField(max_length=100,blank=True,null=True)  
     username = models.CharField(max_length=100,blank=True,null=True)  
     passwd = models.CharField(max_length=100,default='root',blank=True,null=True)  

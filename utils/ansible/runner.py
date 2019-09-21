@@ -137,7 +137,7 @@ class ANSRunner(object):
         try: 
             self.callback = Playbookcallback(self.websocket,self.background) 
             extra_vars['host'] = ','.join(host_list)
-            self.variable_manager.extra_vars = extra_vars            
+            self.variable_manager.extra_vars = extra_vars
             executor = PlaybookExecutor(  
                 playbooks=[playbook_path], inventory=self.inventory, variable_manager=self.variable_manager, loader=self.loader,  
                 options=self.options, passwords=self.passwords,  
